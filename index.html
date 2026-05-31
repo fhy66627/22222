@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>HTML学习之旅 | 15大关卡 · 步步为营</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f7fc 0%, #e9eef4 100%);
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .learning-hub {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.7);
+            border-radius: 2rem;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 1rem;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #1E3C72, #2A5298);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .level-badge {
+            background: #1e293b;
+            color: #facc15;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: inset 0 -1px 0 #334155, 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .levels-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            background: #ffffffcc;
+            backdrop-filter: blur(4px);
+            padding: 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid #ffffff;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+        .level-card {
+            background: #f1f5f9;
+            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            flex: 0 0 auto;
+        }
+        .level-card.active {
+            background: #2c3e66;
+            color: white;
+            border-color: #1e293b;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transform: scale(1.02);
+        }
+        .level-card.completed {
+            background: #10b98120;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+        .level-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #e2e8f0;
+            filter: grayscale(0.1);
+        }
+        .level-title {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-icon {
+            font-size: 1rem;
+        }
+
+        .game-play-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .mission-column {
+            flex: 1.2;
+            min-width: 260px;
+            background: #ffffffdd;
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .editor-column {
+            flex: 1.8;
+            min-width: 320px;
+            background: #1e1f2c;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+        .preview-column {
+            flex: 1.5;
+            min-width: 280px;
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        .mission-header { font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #0f172a; }
+        .mission-goal { background: #fef9c3; padding: 0.75rem; border-radius: 1rem; margin: 1rem 0; font-size: 0.95rem; border-left: 5px solid #eab308; }
+        .hint-box { background: #eef2ff; padding: 0.75rem; border-radius: 1rem; color: #1e3a8a; font-size: 0.85rem; }
+        .editor-header { background: #0f172a; color: #cbd5e1; padding: 0.8rem 1rem; font-size: 0.85rem; font-weight: 500; }
+        textarea { width: 100%; height: 280px; background: #0f172a; color: #e2e8f0; border: none; font-family: 'Fira Code', monospace; font-size: 0.85rem; padding: 1rem; resize: vertical; outline: none; }
+        .action-buttons { display: flex; gap: 12px; padding: 1rem; background: #1e293b; }
+        button { background: #3b82f6; border: none; padding: 8px 20px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer; transition: 0.1s; font-size: 0.85rem; }
+        button:active { transform: scale(0.97); }
+        .btn-reset { background: #475569; }
+        .btn-check { background: #10b981; }
+        .preview-header { background: #f8fafc; padding: 0.6rem 1rem; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
+        iframe { width: 100%; height: 320px; border: none; background: white; }
+        .feedback { margin-top: 1rem; font-size: 0.9rem; padding: 10px; border-radius: 1rem; background: #f1f5f9; text-align: center; font-weight: 500; }
+        .success-feedback { background: #d1fae5; color: #065f46; }
+        .error-feedback { background: #fee2e2; color: #991b1b; }
+        footer { text-align: center; margin-top: 2rem; font-size: 0.7rem; color: #475569; }
+        @media (max-width: 850px) { .game-play-area { flex-direction: column; } .levels-row { max-height: 200px; } }
+    </style>
+</head>
+<body>
+<div class="learning-hub">
+    <div class="header">
+        <h1>🧩 HTML学习之旅 · 15大关卡</h1>
+        <div class="level-badge" id="globalLevelBadge">第1关</div>
+    </div>
+
+    <div class="levels-row" id="levelsContainer"></div>
+
+    <div class="game-play-area">
+        <div class="mission-column">
+            <div class="mission-header">📜 当前任务</div>
+            <div id="missionDescription">加载关卡...</div>
+            <div class="mission-goal" id="missionGoal"></div>
+            <div class="hint-box" id="hintBox"></div>
+        </div>
+
+        <div class="editor-column">
+            <div class="editor-header">✏️ HTML 编辑器 (编写你的代码)</div>
+            <textarea id="codeEditor" spellcheck="false"></textarea>
+            <div class="action-buttons">
+                <button id="runBtn" class="btn-check">▶ 运行预览</button>
+                <button id="checkBtn" class="btn-check">✅ 验证闯关</button>
+                <button id="resetCodeBtn" class="btn-reset">⟳ 重置代码</button>
+            </div>
+        </div>
+
+        <div class="preview-column">
+            <div class="preview-header">🔍 实时预览区</div>
+            <iframe id="previewFrame" title="HTML预览"></iframe>
+        </div>
+    </div>
+    <div id="feedbackMsg" class="feedback"></div>
+    <footer>⭐ 每一关完成后自动解锁下一关 | 闯关进度保存在浏览器中</footer>
+</div>
+
+<script>
+    // ---------- 共15个关卡 (原5关 + 新增10关) ----------
+    const levels = [
+        { // 0
+            name: "🌱 标题与段落", desc: "最基本的HTML元素",
+            goal: "页面必须包含一个<h1>一级标题，标题文字需包含「我的第一个网页」或「HTML学习」；同时包含一个<p>段落。",
+            hint: "使用 <h1>标题</h1> 和 <p>段落内容</p>。",
+            validator: (doc) => {
+                let h1 = doc.querySelector('h1');
+                if(!h1) return { ok: false, msg: "❌ 缺少 &lt;h1&gt; 标题" };
+                let txt = h1.innerText;
+                if(!(txt.includes('我的第一个网页') || txt.includes('HTML学习') || txt.includes('学习之旅'))) return { ok: false, msg: "⚠️ 标题需包含「我的第一个网页」或「HTML学习」" };
+                if(!doc.querySelector('p')) return { ok: false, msg: "📌 缺少 &lt;p&gt; 段落" };
+                return { ok: true, msg: "🎉 标题与段落闯关成功！" };
+            }, defaultCode: `<h1>我的第一个网页</h1>\n<p>我爱HTML！</p>`
+        },
+        { // 1
+            name: "🖼️ 图片与属性", desc: "img标签",
+            goal: "页面必须包含一个<img>标签，且src属性有效（不能为空）。",
+            hint: "<img src='https://picsum.photos/200/100' alt='随机图片'>",
+            validator: (doc) => {
+                let imgs = doc.querySelectorAll('img');
+                if(imgs.length===0) return { ok: false, msg: "🖼️ 未找到img标签" };
+                for(let i of imgs) if(!i.src || i.src==="") return { ok: false, msg: "请设置有效的src属性" };
+                return { ok: true, msg: "🎉 图片加载成功！" };
+            }, defaultCode: `<h1>我的图片</h1>\n<img src="https://picsum.photos/id/20/200/150" alt="风景">`
+        },
+        { // 2
+            name: "🔗 链接与导航", desc: "a标签",
+            goal: "必须包含一个<a>超链接，并且href不为空，链接文本可见。",
+            hint: "<a href='https://example.com' target='_blank'>点我学习</a>",
+            validator: (doc) => {
+                let links = doc.querySelectorAll('a');
+                if(links.length===0) return { ok: false, msg: "🔗 未找到超链接" };
+                for(let a of links) if(!a.href || a.innerText.trim()==="") return { ok: false, msg: "链接地址或文字不完整" };
+                return { ok: true, msg: "🎉 链接设置正确！" };
+            }, defaultCode: `<h1>推荐网站</h1>\n<a href="https://developer.mozilla.org" target="_blank">MDN文档</a>`
+        },
+        { // 3
+            name: "📋 列表元素", desc: "ul/ol 列表",
+            goal: "包含ul或ol，并且至少包含两个li列表项。",
+            hint: "<ul><li>苹果</li><li>香蕉</li></ul>",
+            validator: (doc) => {
+                let lists = doc.querySelectorAll('ul, ol');
+                if(lists.length===0) return { ok: false, msg: "📃 未找到列表(ul/ol)" };
+                let hasItems = false;
+                for(let l of lists) if(l.querySelectorAll('li').length>=2) { hasItems=true; break; }
+                if(!hasItems) return { ok: false, msg: "列表至少需要2个<li>项目" };
+                return { ok: true, msg: "🎉 列表完美！" };
+            }, defaultCode: `<h2>学习清单</h2>\n<ul><li>HTML</li><li>CSS</li></ul>`
+        },
+        { // 4
+            name: "🎨 样式与内联style", desc: "style属性",
+            goal: "任意元素必须有内联style属性，且包含颜色或背景等样式。",
+            hint: "<h1 style='color:blue'>蓝色标题</h1>",
+            validator: (doc) => {
+                let styled = doc.querySelector('[style]');
+                if(!styled || styled.getAttribute('style').trim()==="") return { ok: false, msg: "请使用style属性给元素添加样式(如颜色)" };
+                return { ok: true, msg: "🎉 样式生效！页面更美观" };
+            }, defaultCode: `<h1 style="color:#d97706;">琥珀色标题</h1><p style="background:#fee2e2;">淡红背景</p>`
+        },
+        // -------------------- 新增10个关卡 (索引5~14) --------------------
+        { // 5 表格基础
+            name: "📊 表格构建", desc: "table标签",
+            goal: "页面需要包含一个表格(<table>)，至少包含一行(<tr>)和两个单元格(<td>或<th>)。",
+            hint: "使用 <table border='1'><tr><td>姓名</td><td>分数</td></tr></table>",
+            validator: (doc) => {
+                let table = doc.querySelector('table');
+                if(!table) return { ok: false, msg: "缺少表格元素" };
+                let rows = table.querySelectorAll('tr');
+                if(rows.length===0) return { ok: false, msg: "表格至少有一行" };
+                let cells = table.querySelectorAll('td, th');
+                if(cells.length<2) return { ok: false, msg: "至少包含两个单元格" };
+                return { ok: true, msg: "🎉 表格创建成功！" };
+            }, defaultCode: `<h3>成绩表</h3>\n<table border="1">\n<tr><th>科目</th><th>分数</th></tr>\n<tr><td>HTML</td><td>95</td></tr>\n</table>`
+        },
+        { // 6 表单与输入框
+            name: "📝 表单输入", desc: "input元素",
+            goal: "页面必须包含一个<input>标签，且type属性为text或email等常用类型。",
+            hint: "<input type='text' placeholder='输入姓名'>",
+            validator: (doc) => {
+                let inputs = doc.querySelectorAll('input');
+                if(inputs.length===0) return { ok: false, msg: "未找到输入框<input>" };
+                let valid = Array.from(inputs).some(i => i.type==='text' || i.type==='email' || i.type==='password');
+                if(!valid) return { ok: false, msg: "input类型需要是text/email/password等" };
+                return { ok: true, msg: "🎉 表单元素添加成功！" };
+            }, defaultCode: `<h2>联系我</h2>\n<label>昵称：</label><input type="text" placeholder="你的名字">`
+        },
+        { // 7 按钮与交互
+            name: "🔘 按钮元素", desc: "button标签",
+            goal: "页面必须包含至少一个<button>按钮，按钮上要有文字。",
+            hint: "<button>点击我</button>",
+            validator: (doc) => {
+                let btns = doc.querySelectorAll('button');
+                if(btns.length===0) return { ok: false, msg: "缺少button按钮" };
+                let hasText = Array.from(btns).some(b => b.innerText.trim().length>0);
+                if(!hasText) return { ok: false, msg: "按钮需要有文字内容" };
+                return { ok: true, msg: "🎉 按钮已添加！可以用于后期JavaScript交互" };
+            }, defaultCode: `<p>操作：</p>\n<button>提交</button>\n<button>重置</button>`
+        },
+        { // 8 语义化区块: header/main/footer
+            name: "🏗️ 语义化标签", desc: "header, main, footer",
+            goal: "页面必须包含至少两个不同的语义标签（header, main, footer, section, article等）。",
+            hint: "<header>页眉</header><main>主内容</main><footer>页脚</footer>",
+            validator: (doc) => {
+                let semantic = doc.querySelectorAll('header, main, footer, section, article, nav');
+                if(semantic.length < 2) return { ok: false, msg: "至少使用2种语义标签（如header+main）" };
+                return { ok: true, msg: "🎉 结构语义化做得很棒！" };
+            }, defaultCode: `<header>🌐 我的博客</header>\n<main>欢迎学习HTML5语义标签</main>\n<footer>© 2025</footer>`
+        },
+        { // 9 嵌入视频/多媒体
+            name: "🎥 多媒体嵌入", desc: "video或audio",
+            goal: "页面包含video或audio标签，并提供controls属性。",
+            hint: "<video controls width='250'><source src='https://www.w3schools.com/html/mov_bbb.mp4' type='video/mp4'></video> 可使用示例视频",
+            validator: (doc) => {
+                let media = doc.querySelectorAll('video, audio');
+                if(media.length===0) return { ok: false, msg: "缺少video或audio标签" };
+                let hasControl = Array.from(media).some(m => m.hasAttribute('controls'));
+                if(!hasControl) return { ok: false, msg: "建议添加controls属性便于用户控制" };
+                return { ok: true, msg: "🎉 多媒体元素添加，网页更有趣！" };
+            }, defaultCode: `<h3>示例视频</h3>\n<video width="280" controls>\n  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">\n  您的浏览器不支持video标签。\n</video>`
+        },
+        { // 10 字符实体与特殊符号
+            name: "✨ 字符实体", desc: "HTML实体",
+            goal: "页面展示至少两个HTML实体（比如 &copy; &lt; &gt; &nbsp; 等）。",
+            hint: "使用 &copy; 表示版权符号， &lt; 表示小于号。",
+            validator: (doc) => {
+                let html = doc.documentElement.outerHTML;
+                let entities = /&[a-zA-Z]+;|&#\d+;/g;
+                let matches = html.match(entities) || [];
+                let unique = new Set(matches);
+                if(unique.size < 2) return { ok: false, msg: "请至少使用两种不同的HTML实体（例如&copy;和&nbsp;）" };
+                return { ok: true, msg: "🎉 实体使用正确，内容更专业！" };
+            }, defaultCode: `<p>版权信息 &copy; 2025 HTML学习之旅</p>\n<p>使用 &lt;h1&gt; 表示标题标签。</p>`
+        },
+        { // 11 区块与内联div+span
+            name: "📦 容器元素", desc: "div与span",
+            goal: "页面必须同时包含一个<div>和一个<span>，并且各自里面都有内容。",
+            hint: "<div>区块内容</div> 和 <span>内联文字</span>",
+            validator: (doc) => {
+                let divs = doc.querySelectorAll('div');
+                let spans = doc.querySelectorAll('span');
+                if(divs.length===0) return { ok: false, msg: "缺少div容器" };
+                if(spans.length===0) return { ok: false, msg: "缺少span内联元素" };
+                return { ok: true, msg: "🎉 容器布局元素掌握成功！" };
+            }, defaultCode: `<div style="background:#eef2ff; padding:8px;">这是div块</div>\n<p>这是一个<span style="font-weight:bold;">高亮span</span>示例</p>`
+        },
+        { // 12 下拉菜单
+            name: "📌 下拉选择框", desc: "select标签",
+            goal: "页面必须包含<select>下拉框，内部至少有2个<option>选项。",
+            hint: "<select><option>选项A</option><option>选项B</option></select>",
+            validator: (doc) => {
+                let select = doc.querySelector('select');
+                if(!select) return { ok: false, msg: "未找到select标签" };
+                let options = select.querySelectorAll('option');
+                if(options.length < 2) return { ok: false, msg: "select需包含至少2个option选项" };
+                return { ok: true, msg: "🎉 下拉菜单构建完成，用户交互升级！" };
+            }, defaultCode: `<label>兴趣：</label>\n<select>\n  <option>编程</option>\n  <option>设计</option>\n</select>`
+        },
+        { // 13 注释与代码规范
+            name: "📌 HTML注释", desc: "注释语法",
+            goal: "页面内必须包含至少一行有效的HTML注释 <!--- 注释内容 -->。",
+            hint: "使用 <!-- 这里是注释，不会显示 --> 添加说明。",
+            validator: (doc) => {
+                let htmlText = doc.documentElement.outerHTML;
+                let commentRegex = /<!--[\s\S]*?-->/g;
+                let comments = htmlText.match(commentRegex);
+                if(!comments || comments.length===0) return { ok: false, msg: "未检测到HTML注释，请添加注释提高代码可读性" };
+                return { ok: true, msg: "🎉 注释习惯优良，团队合作必备！" };
+            }, defaultCode: `<!-- 这是一个注释，帮助理解页面结构 -->\n<h2>清晰代码</h2>\n<p>加上注释更专业</p>`
+        },
+        { // 14 终极融合挑战：组合运用
+            name: "🏆 综合挑战", desc: "融合多个知识点",
+            goal: "页面必须同时包含：一个标题(h2)，一个链接(a)，一张图片(img)，以及一个列表(ul/ol)。",
+            hint: "大胆组合前三关学到的技能吧！",
+            validator: (doc) => {
+                if(!doc.querySelector('h1, h2, h3')) return { ok: false, msg: "缺少标题元素" };
+                if(!doc.querySelector('a')) return { ok: false, msg: "请至少包含一个超链接" };
+                if(!doc.querySelector('img')) return { ok: false, msg: "请添加图片" };
+                let lists = doc.querySelectorAll('ul, ol');
+                if(lists.length===0) return { ok: false, msg: "需要列表(ul或ol)来展示内容" };
+                return { ok: true, msg: "🏆 恭喜通过终极挑战！你已经掌握了HTML核心元素！" };
+            }, defaultCode: `<h2>我的作品集</h2>\n<a href="#">访问我的GitHub</a>\n<ul><li>项目1</li><li>项目2</li></ul>\n<img src="https://picsum.photos/200/120" alt="demo">`
+        }
+    ];
+
+    let currentLevelIndex = 0;
+    let completedLevels = new Array(levels.length).fill(false);
+    const STORAGE_KEY = 'html_adventure_15';
+
+    const levelsContainer = document.getElementById('levelsContainer');
+    const missionDesc = document.getElementById('missionDescription');
+    const missionGoal = document.getElementById('missionGoal');
+    const hintBoxEl = document.getElementById('hintBox');
+    const codeEditor = document.getElementById('codeEditor');
+    const previewFrame = document.getElementById('previewFrame');
+    const feedbackDiv = document.getElementById('feedbackMsg');
+    const runBtn = document.getElementById('runBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const resetBtn = document.getElementById('resetCodeBtn');
+    const badge = document.getElementById('globalLevelBadge');
+
+    function loadProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved) {
+            try {
+                const data = JSON.parse(saved);
+                if(data.completed) completedLevels = data.completed.map(v=>!!v);
+                if(typeof data.currentLevel === 'number' && data.currentLevel >=0 && data.currentLevel<levels.length) currentLevelIndex = data.currentLevel;
+            } catch(e){}
+        }
+        if(currentLevelIndex>0 && !completedLevels[currentLevelIndex-1]) currentLevelIndex = 0;
+        saveProgress();
+    }
+    function saveProgress() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ completed: completedLevels, currentLevel: currentLevelIndex }));
+    }
+
+    function renderLevels() {
+        levelsContainer.innerHTML = '';
+        levels.forEach((lvl, idx) => {
+            const card = document.createElement('div');
+            card.className = 'level-card';
+            if(completedLevels[idx]) card.classList.add('completed');
+            if(idx === currentLevelIndex) card.classList.add('active');
+            let locked = (idx !== 0 && !completedLevels[idx-1]);
+            if(locked) card.classList.add('locked');
+            let icon = completedLevels[idx] ? '✅' : (idx===currentLevelIndex ? '⚡' : (locked ? '🔒' : '📘'));
+            card.innerHTML = `<div class="level-title"><span class="status-icon">${icon}</span> ${lvl.name}</div>`;
+            if(!locked) card.addEventListener('click', ()=> setCurrentLevel(idx));
+            levelsContainer.appendChild(card);
+        });
+    }
+
+    function setCurrentLevel(idx) {
+        if(idx !==0 && !completedLevels[idx-1]) {
+            feedbackDiv.innerHTML = `<div class="error-feedback">🔒 请先完成前一关！</div>`;
+            setTimeout(()=> feedbackDiv.innerHTML='',1500);
+            return;
+        }
+        currentLevelIndex = idx;
+        saveProgress();
+        renderLevels();
+        loadLevelUI();
+        codeEditor.value = levels[currentLevelIndex].defaultCode || '';
+        runPreview();
+        feedbackDiv.innerHTML = '';
+    }
+
+    function loadLevelUI() {
+        const lvl = levels[currentLevelIndex];
+        missionDesc.innerHTML = `<strong>${lvl.name}</strong><br>${lvl.desc}`;
+        missionGoal.innerHTML = `🎯 目标：${lvl.goal}`;
+        hintBoxEl.innerHTML = `💡 提示：${lvl.hint}`;
+        badge.innerText = `第${currentLevelIndex+1}关 · ${lvl.name}`;
+    }
+
+    function runPreview() {
+        let code = codeEditor.value;
+        let full = /<!DOCTYPE/i.test(code) ? code : `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>预览</title><style>body{font-family:sans-serif;padding:1rem;}</style></head><body>${code}</body></html>`;
+        previewFrame.srcdoc = full;
+        return full;
+    }
+
+    function validate() {
+        const fullDoc = runPreview();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(fullDoc, 'text/html');
+        const result = levels[currentLevelIndex].validator(doc);
+        if(result.ok) {
+            feedbackDiv.innerHTML = `<div class="success-feedback">✅ ${result.msg}</div>`;
+            if(!completedLevels[currentLevelIndex]) {
+                completedLevels[currentLevelIndex] = true;
+                saveProgress();
+                renderLevels();
+                if(currentLevelIndex+1 < levels.length) {
+                    feedbackDiv.innerHTML += `<div style="margin-top:8px;">🌟 解锁下一关！即将跳转...</div>`;
+                    setTimeout(() => setCurrentLevel(currentLevelIndex+1), 1400);
+                } else {
+                    feedbackDiv.innerHTML += `<div style="margin-top:8px;">🏁 恭喜通关全部15个关卡！成为HTML大师！</div>`;
+                }
+            }
+        } else {
+            feedbackDiv.innerHTML = `<div class="error-feedback">❌ ${result.msg}</div>`;
+        }
+    }
+
+    function resetCurrent() {
+        codeEditor.value = levels[currentLevelIndex].defaultCode;
+        runPreview();
+        feedbackDiv.innerHTML = '↻ 已重置当前关卡示例代码。';
+        setTimeout(()=> { if(feedbackDiv.innerHTML.includes('重置')) feedbackDiv.innerHTML=''; }, 1800);
+    }
+
+    runBtn.addEventListener('click', runPreview);
+    checkBtn.addEventListener('click', validate);
+    resetBtn.addEventListener('click', resetCurrent);
+    loadProgress();
+    renderLevels();
+    setCurrentLevel(currentLevelIndex);
+    runPreview();
+</script>
+</body>
+</html>
